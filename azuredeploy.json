@@ -170,34 +170,32 @@
             "enabled": "true",
             "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2016-01-01').primaryEndpoints.blob)]"
           }
+        }
+      }
+    },
+	{
+        "name": "config-app",
+        "type": "extensions",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2015-06-15",
+        "dependsOn": [
+          "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+        ],
+        "tags": {
+          "displayName": "config-app"
         },
-      "resources": [
-        {
-          "name": "config-app",
-          "type": "extensions",
-          "location": "[resourceGroup().location]",
-          "apiVersion": "2015-06-15",
-          "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-          ],
-          "tags": {
-            "displayName": "config-app"
-          },
-          "properties": {
-            "publisher": "Microsoft.Azure.Extensions",
-            "type": "CustomScript",
-            "typeHandlerVersion": "2.0",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "fileUris": [
-                "https://raw.githubusercontent.com/seguler/azuredeploytest/master/setup_env.sh"
-              ],
-              "commandToExecute": "sudo sh setup_env.sh"
-            }
+        "properties": {
+          "publisher": "Microsoft.Azure.Extensions",
+          "type": "CustomScript",
+          "typeHandlerVersion": "2.0",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "fileUris": [
+              "https://raw.githubusercontent.com/seguler/azuredeploytest/master/setup_env.sh"
+            ],
+            "commandToExecute": "sudo sh setup_env.sh"
           }
         }
-]
-      }
     }
   ],
   "outputs": {
