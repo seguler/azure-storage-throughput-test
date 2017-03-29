@@ -172,28 +172,25 @@
       }
     },
 	{
-		"name": "scriptextensiondemo",
-		"type": "extensions",
-		"location": "[resourceGroup().location]",
-		"apiVersion": "2015-06-15",
-		"dependsOn": [
-			"[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-		],
-		"tags": {
-			"displayName": "scriptextensiondemo"
-		},
-		"properties": {
-			"publisher": "Microsoft.Azure.Extensions",
-			"type": "CustomScript",
-			"typeHandlerVersion": "2.0",
-			"autoUpgradeMinorVersion": true,
-		  "settings": {
-			"fileUris": [
-				"https://raw.githubusercontent.com/seguler/azuredeploytest/master/setup_env.sh"
-			],
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'),'/installenvironment')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "https://raw.githubusercontent.com/seguler/azuredeploytest/master/setup_env.sh"
+          ],
 			"commandToExecute": "sudo sh setup_env.sh"
-		  }
-		}
+        }
+      }
 	}
   ],
   "outputs": {
