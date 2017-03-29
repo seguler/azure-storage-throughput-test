@@ -15,8 +15,9 @@ cd /home
 git clone https://github.com/Azure-Samples/storage-blob-coreclr-linux-getting-started-w-data-movement-library
 
 cd storage-blob-coreclr-linux-getting-started-w-data-movement-library
-dotnet restore
-dotnet build
+chown -R $1 .
+sudo -u $1 dotnet restore
+sudo -u $1 dotnet build
 
 echo "Creating dummy files from dev/urandom"
 mkdir test
