@@ -188,7 +188,7 @@
           "fileUris": [
             "https://raw.githubusercontent.com/seguler/azuredeploytest/master/setup_env.sh"
           ],
-			"commandToExecute": "[concat('sudo sh setup_env.sh ', parameters('adminUsername'))]"
+			"commandToExecute": "[concat('sh setup_env.sh ', parameters('adminUsername'))]"
         }
       }
 	}
