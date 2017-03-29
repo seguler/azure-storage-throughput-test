@@ -25,7 +25,7 @@ dd if=/dev/urandom of=samplefile bs=1G count=2
 
 echo "Resetting the permissions"
 cd ..
-chmod -R 755 .
+chown -R $1 .
 
 echo "done"
 
