@@ -11,6 +11,7 @@ sudo apt-get update
 sudo apt-get install dotnet-dev-1.0.1 -y
 
 echo "Cloning the sample"
+cd /home
 git clone https://github.com/Azure-Samples/storage-blob-coreclr-linux-getting-started-w-data-movement-library
 
 cd storage-blob-coreclr-linux-getting-started-w-data-movement-library
