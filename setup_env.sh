@@ -12,9 +12,9 @@ sudo apt-get install dotnet-dev-1.0.1 -y
 
 echo "###Cloning the sample"
 cd /home/$1
-git clone https://github.com/Azure-Samples/storage-blob-coreclr-linux-getting-started-w-data-movement-library
+git clone https://github.com/seguler/azuredeploytest
 
-cd storage-blob-coreclr-linux-getting-started-w-data-movement-library
+cd azuredeploytest
 
 # Inject the account name and key
 sed -i '/string connectionString/c\string connectionString = "DefaultEndpointsProtocol=http;AccountName=$1;AccountKey=$2";' Program.cs
