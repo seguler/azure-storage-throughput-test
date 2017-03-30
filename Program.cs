@@ -70,7 +70,7 @@ namespace AzPerf
                 Console.WriteLine("Starting {0}", fileName);
                 var container = containers[count % 8];
                 CloudBlockBlob blockBlob = container.GetBlockBlobReference(s);
-                Tasks.Add(Task.Run(() => blockBlob.UploadFromFileAsync(fileName, null, new BlobRequestOptions(){ ParallelOperationThreadCount=8},null)));
+                Tasks.Add(Task.Run(() => blockBlob.UploadFromFileAsync(fileName, null, new BlobRequestOptions(){ ParallelOperationThreadCount=8, DisableContentMD5Validation=true, StoreBlobContentMD5=false},null)));
                 count++;
             }
 
