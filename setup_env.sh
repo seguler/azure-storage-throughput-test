@@ -17,7 +17,7 @@ git clone https://github.com/seguler/azuredeploytest
 cd azuredeploytest
 
 # Inject the account name and key
-sed -i '/string connectionString/c\string connectionString = "DefaultEndpointsProtocol=http;AccountName='$1';AccountKey='$2'";' Program.cs
+sed -i '/string connectionString/c\string connectionString = "DefaultEndpointsProtocol=http;AccountName='$2';AccountKey='$3'";' Program.cs
 	
 chown -R $1 .
 chmod -R 755 .
