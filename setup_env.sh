@@ -29,7 +29,7 @@ sudo -u $1 dotnet build
 echo "Creating dummy files from dev/urandom"
 mkdir test
 cd test
-dd if=/dev/urandom of=samplefile bs=1G count=2
+head -c 1G </dev/urandom >mysamplefile
 
 echo "###Resetting the permissions"
 cd ..
