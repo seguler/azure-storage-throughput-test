@@ -28,7 +28,7 @@ namespace AzPerf
             {
                 blobContainers[i] = blobClient.GetContainerReference(GenerateString(5, new Random((int)DateTime.Now.Ticks), LowerCaseAlphabet));
                 Console.WriteLine(blobContainers[i].Uri);
-                blobContainers[i].CreateIfNotExistsAsync();
+                blobContainers[i].CreateIfNotExistsAsync().Wait();
             }
             return blobContainers;
         }
@@ -56,10 +56,6 @@ namespace AzPerf
 
             // Seed the Random value using the Ticks representing current time and date
             // Since int is used as seen we cast (loss of long data)
-            Random r = new Random((int)DateTime.Now.Ticks);
-
-            String s = (r.Next() % 1000).ToString("X3");
-
 
 
             int count = 0;
@@ -69,14 +65,16 @@ namespace AzPerf
             {
                 Console.WriteLine("Starting {0}", fileName);
                 var container = containers[count % 8];
+                Random r = new Random((int)DateTime.Now.Ticks);
+                String s = (r.Next() % 10000).ToString("X5");
                 CloudBlockBlob blockBlob = container.GetBlockBlobReference(s);
-                Tasks.Add(Task.Run(() => blockBlob.UploadFromFileAsync(fileName, null, new BlobRequestOptions(){ ParallelOperationThreadCount=8, DisableContentMD5Validation=true, StoreBlobContentMD5=false},null)));
+                Tasks.Add(new Task(() => blockBlob.UploadFromFileAsync(fileName, null, new BlobRequestOptions(){ ParallelOperationThreadCount=1, DisableContentMD5Validation=true, StoreBlobContentMD5=false},null)));
                 count++;
             }
 
-           //StartAndWaitAllThrottled(Tasks, 8);
+           StartAndWaitAllThrottled(Tasks, 8);
 
-           Task.WhenAll(Tasks).Wait();
+           //Task.WhenAll(Tasks).Wait();
 
             } catch(Exception ex)
             {
@@ -118,7 +116,7 @@ namespace AzPerf
             CloudBlobContainer[] containers = GetRandomContainers();
 
             // path to the directory to upload
-            string path = "./";
+            string path = "test";
             if (args.Length > 0)
             {
                 path = System.Convert.ToString(args[0]);
