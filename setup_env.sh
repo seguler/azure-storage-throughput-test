@@ -31,7 +31,7 @@ mkdir test
 cd test
 for i in {1..8}
 do
-	head -c 1G </dev/urandom >mysamplefile.$i
+	head -c 1G </dev/urandom >mysamplefile.${i}
 done
 
 echo "###Resetting the permissions"

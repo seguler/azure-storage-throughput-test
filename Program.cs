@@ -44,72 +44,6 @@ namespace AzPerf
             return new string(chars);
         }
 
-        static async void MainAsync(string path, CloudBlobContainer[] containers)
-        {
-            
-            try { 
-            double runMinutes = 0;
-            double progressReportMinutes = 0;
-            progressReportMinutes = 1;
-
-            Console.WriteLine("iterating in directiory:", path);
-
-            // Seed the Random value using the Ticks representing current time and date
-            // Since int is used as seen we cast (loss of long data)
-
-
-            int count = 0;
-            List<Task> Tasks = new List<Task>();
-
-            foreach (string fileName in Directory.GetFiles(path))
-            {
-                Console.WriteLine("Starting {0}", fileName);
-                var container = containers[count % 8];
-                Random r = new Random((int)DateTime.Now.Ticks);
-                String s = (r.Next() % 10000).ToString("X5");
-                CloudBlockBlob blockBlob = container.GetBlockBlobReference(s);
-                Tasks.Add(new Task(() => blockBlob.UploadFromFileAsync(fileName, null, new BlobRequestOptions(){ ParallelOperationThreadCount=1, DisableContentMD5Validation=true, StoreBlobContentMD5=false},null)));
-                count++;
-            }
-
-           StartAndWaitAllThrottled(Tasks, 8);
-
-           //Task.WhenAll(Tasks).Wait();
-
-            } catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        public static void StartAndWaitAllThrottled(List<Task> tasksToRun, int maxTasksToRunInParallel, CancellationToken cancellationToken = new CancellationToken())
-        {
-            StartAndWaitAllThrottled(tasksToRun, maxTasksToRunInParallel, -1, cancellationToken);
-        }
-        public static void StartAndWaitAllThrottled(List<Task> tasks, int maxTasksToRunInParallel, int timeoutInMilliseconds, CancellationToken cancellationToken = new CancellationToken())
-        {
-            using (var throttler = new SemaphoreSlim(maxTasksToRunInParallel))
-            {
-                var postTaskTasks = new List<Task>();
-
-                // Have each task notify the throttler when it completes so that it decrements the number of tasks currently running.
-                tasks.ForEach(t => postTaskTasks.Add(t.ContinueWith(tsk => throttler.Release())));
-
-                // Start running each task.
-                foreach (var task in tasks)
-                {
-                    // Increment the number of tasks currently running and wait if too many are running.
-                    throttler.Wait(timeoutInMilliseconds, cancellationToken);
-
-                    cancellationToken.ThrowIfCancellationRequested();
-                    task.Start();
-                }
-
-                // Wait for all of the provided tasks to complete.
-                // We wait on the list of "post" tasks instead of the original tasks, otherwise there is a potential race condition where the throttler&#39;s using block is exited before some Tasks have had their "post" action completed, which references the throttler, resulting in an exception due to accessing a disposed object.
-                Task.WaitAll(postTaskTasks.ToArray(), cancellationToken);
-            }
-        }
         static void Main(string[] args)
         {
 
@@ -122,11 +56,49 @@ namespace AzPerf
                 path = System.Convert.ToString(args[0]);
             }
 
-            Stopwatch s = Stopwatch.StartNew();
-            MainAsync(path, containers);
-            s.Stop();
+            Stopwatch time = Stopwatch.StartNew();
+            try
+            {
 
-            Console.WriteLine("Upload has been completed in {0} seconds.", s.Elapsed.TotalSeconds.ToString());
+                Console.WriteLine("iterating in directiory:", path);
+
+                // Seed the Random value using the Ticks representing current time and date
+                // Since int is used as seen we cast (loss of long data)
+
+
+                int count = 0;
+                int max_outstanding = 100;
+                int completed_count = 0;
+                Semaphore sem = new Semaphore(max_outstanding, max_outstanding);
+
+                List<Task> Tasks = new List<Task>();
+
+                foreach (string fileName in Directory.GetFiles(path))
+                {
+                    Console.WriteLine("Starting {0}", fileName);
+                    var container = containers[count % 8];
+                    Random r = new Random((int)DateTime.Now.Ticks);
+                    String s = (r.Next() % 10000).ToString("X5");
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(s);
+                    sem.WaitOne();
+                    blockBlob.UploadFromFileAsync(fileName, null, new BlobRequestOptions() { ParallelOperationThreadCount = 1, DisableContentMD5Validation = true, StoreBlobContentMD5 = false }, null).ContinueWith((t) => {
+                        sem.Release();
+                        Interlocked.Increment(ref completed_count);
+                    });
+                    count++;
+                }
+
+                Task.WhenAll(Tasks).Wait();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            time.Stop();
+
+            Console.WriteLine("Upload has been completed in {0} seconds.", time.Elapsed.TotalSeconds.ToString());
 
             Console.ReadLine();
 
