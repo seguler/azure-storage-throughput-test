@@ -8,7 +8,8 @@
       "allowedValues": [
 	    "Standard_DS1_v2",
         "Standard_DS4_v2",
-		"Standard_DS14_v2"
+		"Standard_DS14_v2",
+		"Standard_L32s"
       ],
       "metadata": {
         "description": "Select the Virtual Machine size."
