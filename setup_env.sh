@@ -25,7 +25,7 @@ sudo -u $1 dotnet build
 
 echo "###Creating 200 files each 1GB from dev/urandom"
 cd /mnt
-for i in (sed 1 200}
+for i in $(seq 1 200)
 do
 	head -c 1G </dev/urandom >mysamplefile.${i}
 done
