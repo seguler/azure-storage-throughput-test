@@ -80,11 +80,12 @@ namespace AzPerf
                     Random r = new Random((int)DateTime.Now.Ticks);
                     String s = (r.Next() % 10000).ToString("X5");
                     CloudBlockBlob blockBlob = container.GetBlockBlobReference(s);
+					blockBlob.StreamWriteSizeInBytes = 100 * 1024 * 1024;
                     sem.WaitOne();
-                    blockBlob.UploadFromFileAsync(fileName, null, new BlobRequestOptions() { ParallelOperationThreadCount = 1, DisableContentMD5Validation = true, StoreBlobContentMD5 = false }, null).ContinueWith((t) => {
+                    Tasks.Add(blockBlob.UploadFromFileAsync(fileName, null, new BlobRequestOptions() { ParallelOperationThreadCount = 8, DisableContentMD5Validation = true, StoreBlobContentMD5 = false }, null).ContinueWith((t) => {
                         sem.Release();
                         Interlocked.Increment(ref completed_count);
-                    });
+                    }));
                     count++;
                 }
 
