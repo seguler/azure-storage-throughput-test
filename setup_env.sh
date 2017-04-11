@@ -23,9 +23,9 @@ echo "###Restoring the nuget packages and building"
 sudo -u $1 dotnet restore --configfile /home/$1/.nuget/NuGet/NuGet.Config
 sudo -u $1 dotnet build
 
-echo "###Creating 200 files each 1GB from dev/urandom"
+echo "###Creating 100 files each 1GB from dev/urandom"
 cd /mnt
-for i in $(seq 1 200)
+for i in $(seq 1 100)
 do
 	head -c 1G </dev/urandom >mysamplefile.${i}
 done
