@@ -25,10 +25,10 @@ sudo -u $1 dotnet build
 
 echo "###Creating 100 files each 1GB from dev/urandom"
 cd /mnt
-##for i in $(seq 1 100)
-##do
-##	head -c 1G </dev/urandom >mysamplefile.${i}
-##done
+for i in $(seq 1 100)
+do
+	head -c 1G </dev/urandom >mysamplefile.${i}
+done
 
 echo "###Resetting the permissions"
 cd /home/$1/azuredeploytest
